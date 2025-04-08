@@ -293,6 +293,8 @@ class FaceDetectionApp:
                 flags=cv2.CASCADE_SCALE_IMAGE
             )
             
+            threshold = 110
+            
             # Process each detected face
             for (x, y, w, h) in faces:
                 # Extract face region
@@ -320,7 +322,7 @@ class FaceDetectionApp:
                     if label in self.name_mapping:
                         name = self.name_mapping[label]
                         # Only show confident predictions
-                        if confidence < 100:  # Lower is better for LBPH
+                        if confidence < threshold:  # Lower is better for LBPH
                             label_text = f"{name} ({confidence:.1f}) - {action}"
                             color = (0, 255, 0)  # Green for confident match
                             # Update UI with found name and action

@@ -1,0 +1,1 @@
+If the program is recognizing you as someone else even though your image is not in the data folder, it indicates that the model is incorrectly matching your face to the closest label in the training data. This happens because the cv2.face.LBPHFaceRecognizer always tries to find the closest match, even if the match is poor.
