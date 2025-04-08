@@ -33,6 +33,10 @@ class FaceDetectionApp:
         # Create UI elements
         self.create_widgets()
         
+        # Add these lines to initialize eye and mouth detectors
+        self.eye_detector = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_eye.xml')
+
+        
         # Initialize camera
         self.cap = None
         
@@ -272,7 +276,7 @@ class FaceDetectionApp:
             self.start_btn.config(text="Start Camera", bg="#4CAF50")
     
     def process_frame(self, frame):
-        """Process a single frame for face detection and recognition"""
+        """Process a single frame for face detection, recognition, and action detection"""
         try:
             # Convert to grayscale for face detection
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -294,8 +298,22 @@ class FaceDetectionApp:
                 # Extract face region
                 face_roi = gray[y:y+h, x:x+w]
                 
+                # Detect eyes within the face region
+                eyes = self.eye_detector.detectMultiScale(face_roi, scaleFactor=1.1, minNeighbors=10, minSize=(15, 15))
+                
+                
+                # Determine action
+                action = "Unknown"
+                if len(eyes) == 0:  # No eyes detected
+                    action = "Sleeping"
+                elif len(eyes) == 1:  # One eye detected
+                    action = "Winking"
+                elif len(eyes) == 2:  # Two eyes detected
+                    action = "Normal"
+                    
+                
+                # Predict the face
                 try:
-                    # Predict the face
                     label, confidence = self.face_recognizer.predict(face_roi)
                     
                     # Get name from label
@@ -303,18 +321,18 @@ class FaceDetectionApp:
                         name = self.name_mapping[label]
                         # Only show confident predictions
                         if confidence < 100:  # Lower is better for LBPH
-                            label_text = f"{name} ({confidence:.1f})"
+                            label_text = f"{name} ({confidence:.1f}) - {action}"
                             color = (0, 255, 0)  # Green for confident match
-                            # Update UI with found name
-                            self.found_label.config(text=f"Found: {name}")
+                            # Update UI with found name and action
+                            self.found_label.config(text=f"Found: {name} | Action: {action}")
                         else:
-                            label_text = "Unknown"
+                            label_text = f"Unknown - {action}"
                             color = (0, 0, 255)  # Red for unknown
                     else:
-                        label_text = "Unknown"
+                        label_text = f"Unknown - {action}"
                         color = (0, 0, 255)  # Red
                 except:
-                    label_text = "Error"
+                    label_text = f"Error - {action}"
                     color = (0, 0, 255)  # Red
                 
                 # Draw rectangle and label
