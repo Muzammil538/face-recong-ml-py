@@ -205,9 +205,9 @@ class FaceDetectionApp:
             self.display_thread = threading.Thread(target=self.camera_loop)
             self.display_thread.daemon = True
             self.display_thread.start()
-    
     def camera_loop(self):
         """Main camera loop - captures frames and updates display"""
+        
         try:
             # Open camera with improved buffer settings
             self.cap = cv2.VideoCapture(1)
